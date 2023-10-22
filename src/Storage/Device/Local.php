@@ -298,9 +298,15 @@ class Local extends Device
      * @param  string  $source
      * @param  string  $target
      * @return bool
+     *
+     * @throws Exception
      */
     public function move(string $source, string $target): bool
     {
+        if ($source === $target) {
+            return false;
+        }
+
         if (! \file_exists(\dirname($target))) { // Checks if directory path to file exists
             if (! @\mkdir(\dirname($target), 0755, true)) {
                 throw new Exception('Can\'t create directory '.\dirname($target));
@@ -504,10 +510,12 @@ class Local extends Device
     /**
      * Get all files and directories inside a directory.
      *
-     * @param  string  $dir Directory to scan
+     * @param  string  $dir
+     * @param  int  $max
+     * @param  string  $continuationToken
      * @return string[]
      */
-    public function getFiles(string $dir): array
+    public function getFiles(string $dir, int $max = self::MAX_PAGE_SIZE, string $continuationToken = ''): array
     {
         if (! (\str_ends_with($dir, DIRECTORY_SEPARATOR))) {
             $dir .= DIRECTORY_SEPARATOR;
